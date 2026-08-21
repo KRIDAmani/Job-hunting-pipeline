@@ -67,7 +67,7 @@ MIN_DESCRIPTION_LENGTH = 200
 # ============================================================
 
 def get_env(name: str, required: bool = True) -> str:
-    val = os.environ.get(name, "")
+    val = os.environ.get(name, "").strip()
     if required and not val:
         print(f"[ERREUR] Variable d'environnement manquante : {name}", file=sys.stderr)
         sys.exit(1)
@@ -120,8 +120,8 @@ def get_ft_token(client_id: str, client_secret: str) -> str:
 
 
 def fetch_france_travail(config: dict) -> list[dict]:
-    client_id = os.environ.get("FT_CLIENT_ID", "")
-    client_secret = os.environ.get("FT_CLIENT_SECRET", "")
+    client_id = os.environ.get("FT_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("FT_CLIENT_SECRET", "").strip()
     if not client_id or not client_secret:
         print("[FT] Identifiants absents — source ignorée.")
         return []
@@ -176,8 +176,8 @@ def normalize_ft(offer: dict, zone_nom: str) -> dict:
 # ============================================================
 
 def fetch_adzuna(config: dict, rotation: dict) -> list[dict]:
-    app_id = os.environ.get("ADZUNA_APP_ID", "")
-    app_key = os.environ.get("ADZUNA_APP_KEY", "")
+    app_id = os.environ.get("ADZUNA_APP_ID", "").strip()
+    app_key = os.environ.get("ADZUNA_APP_KEY", "").strip()
     if not app_id or not app_key:
         print("[ADZUNA] Identifiants absents — source ignorée.")
         return []
@@ -263,8 +263,8 @@ def fetch_email_alerts() -> list[dict]:
     import email
     import imaplib
 
-    gmail_address = os.environ.get("GMAIL_ADDRESS", "")
-    gmail_app_password = os.environ.get("GMAIL_APP_PASSWORD", "")
+    gmail_address = os.environ.get("GMAIL_ADDRESS", "").strip()
+    gmail_app_password = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
     if not gmail_address or not gmail_app_password:
         print("[ALERTES EMAIL] Identifiants Gmail absents — source ignorée.")
         return []
@@ -461,7 +461,7 @@ Aucun texte avant, aucun texte après, aucun bloc de code markdown."""
 
 
 def call_claude_for_cv(offer: dict, master_body: str) -> str | None:
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not api_key:
         return None
 
