@@ -1,0 +1,73 @@
+# ============================================================
+# Config de recherche — à ajuster librement, aucun redéploiement
+# n'est nécessaire : le script relit ce fichier à chaque run.
+# ============================================================
+
+# --------------------------------------------------------------
+# POSTES : chaque entrée = un intitulé canonique de recherche.
+# Utilisé tel quel pour France Travail / Adzuna, et combiné en
+# un seul "OR" par site pour Google Programmable Search.
+# --------------------------------------------------------------
+postes:
+  - "data scientist"
+  - "data engineer"
+  - "ingenieur intelligence artificielle"
+  - "machine learning engineer"
+  - "ingenieur logiciel"
+  - "mlops"
+  - "data analyst"
+  - "developpeur java"
+  - "developpeur c++"
+  - "ingenieur test qualification logiciel"
+
+# --------------------------------------------------------------
+# ZONES : ordre = priorité géographique. "departement" est le
+# code utilisé par France Travail / Adzuna. "national: true"
+# signifie aucun filtre géographique (repli France entière).
+# --------------------------------------------------------------
+zones:
+  - nom: "Nice"
+    departement: "06"
+    rayon_km: 40
+  - nom: "Paris"
+    departement: "75"
+    rayon_km: 30
+  - nom: "Lyon"
+    departement: "69"
+    rayon_km: 30
+  - nom: "Marseille"
+    departement: "13"
+    rayon_km: 30
+  - nom: "France entière"
+    departement: null
+    rayon_km: null
+    national: true
+
+types_contrat:
+  - "CDI"
+
+# ============================================================
+# EXCLUSIONS — inchangé : une offre est rejetée si un des motifs
+# suivants est trouvé (insensible à la casse) dans le titre ou
+# la description.
+# ============================================================
+exclusions_texte:
+  - "10 ans d.experience"
+  - "10\\+ ans"
+  - "minimum 10 ans"
+  - "au moins 10 ans"
+  - "8 ans d.experience minimum"
+
+seuil_max_annees_experience: 7
+
+salaire_plancher_brut_annuel: 39582
+
+# ============================================================
+# ENTREPRISES CIBLÉES via leur ATS (Greenhouse / Lever / Ashby) —
+# API publiques, sans clé, sans quota. Ajoute autant d'entreprises
+# que tu veux ici ; voir README pour trouver le "slug" de chacune.
+# ============================================================
+entreprises_ats:
+  - nom: "Mirakl"
+    plateforme: "greenhouse"
+    slug: "mirakl"

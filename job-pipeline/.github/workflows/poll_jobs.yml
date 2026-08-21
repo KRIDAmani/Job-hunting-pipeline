@@ -1,0 +1,67 @@
+name: Veille emploi
+
+on:
+  schedule:
+    # Toutes les 30 minutes. GitHub peut retarder l'exécution de
+    # quelques minutes en cas de forte charge sur l'infra — c'est
+    # normal et sans conséquence pour ce cas d'usage.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}   # bouton "Run workflow" manuel pour tester
+
+permissions:
+  contents: write   # nécessaire pour committer data/jobs_seen.json
+
+concurrency:
+  group: veille-emploi-poll
+  cancel-in-progress: false   # on laisse finir le run en cours, on ne l'annule pas
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Restaurer le cache LaTeX
+        if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: texlive-cache-v1
+
+      - name: Installer LaTeX (génération de CV)
+        if: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-extra \
+            texlive-lang-french texlive-fonts-recommended latexmk
+
+      - name: Lancer la veille
+        env:
+          FT_CLIENT_ID: ${{ secrets.FT_CLIENT_ID }}
+          FT_CLIENT_SECRET: ${{ secrets.FT_CLIENT_SECRET }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python scripts/poll_jobs.py
+
+      - name: Committer l'état (offres vues + rotation)
+        run: |
+          git config user.name "veille-emploi-bot"
+          git config user.email "actions@github.com"
+          git add data/jobs_seen.json data/rotation_state.json
+          git diff --staged --quiet || git commit -m "Mise à jour de l'état [skip ci]"
+          git pull --rebase origin main
+          git push
